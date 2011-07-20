@@ -113,7 +113,7 @@ if [ "$GAME_PATH" = "" ]; then
 	done
 fi
 if [ "$GAME_PATH" = "" -a "$USE_FIND" = "yes" ]; then
-	FIND_GAME=`find /opt/ /usr/ -type f -name "$GAME_BIN"`
+	FIND_GAME=`find /opt/ /usr/ . -type f -name "$GAME_BIN"`
 	for i in $FIND_GAME; do
 		i=`dirname "$i"`
 		testgamepath $i
