@@ -165,7 +165,8 @@ void initHooks()
 		dma = (dma_t *) 0x08aedc04;
 		break;
 	
-	case 0x6ab49f82:
+	case 0x6ab49f82: //Vanilla
+	case 0x91b6b864: //Arch Linux
 		version = "ET 2.60b";
 		
 		writeJump((void *) 0x08188250, (void *) SNDDMA_Init);
