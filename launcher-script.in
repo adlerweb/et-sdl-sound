@@ -87,11 +87,7 @@ testlibsdl () {
 	fi
 	
 	if [ "$LIBSDL" = "" -a -f "$1" ]; then
-		if [ "`file -b "$1" | grep "ELF 32-bit LSB shared object"`" != "" ]; then
-			info "32-bit libSDL.so is installed to $1"
-			LIBSDL="$1"
-		fi
-		if [ "`file -b "$1" | grep "ELF 32-bit LSB  shared object"`" != "" ]; then
+		if [ "`file -b "$1" | grep "ELF 32-bit LSB"`" != "" ]; then
 			info "32-bit libSDL.so is installed to $1"
 			LIBSDL="$1"
 		fi
@@ -107,7 +103,7 @@ fi
 [ "$GAME_PATH" = "" ] && testgamepath "/usr/local/games/$GAME_DIR"
 [ "$GAME_PATH" = "" ] && testgamepath "/opt/$GAME_DIR"
 [ "$GAME_PATH" = "" ] && testgamepath "/usr/games/$GAME_DIR"
-[ "$GAME_PATH" = "" ] && testgamepath "/usr/share/"
+#[ "$GAME_PATH" = "" ] && testgamepath "/usr/share/"
 [ "$GAME_PATH" = "" ] && testgamepath "~/$GAME_DIR"
 if [ "$GAME_PATH" = "" ]; then
 	LOCATE_GAME=`locate "$GAME_BIN" 2> /dev/null`
@@ -159,12 +155,24 @@ fi
 echo -ne "$ET_SDL_SOUND_LIB" > "$TMP_DIR/et-sdl-sound.so" || eend "can't write $TMP_DIR/et-sdl-sound.so"
 info "library is written to $TMP_DIR/et-sdl-sound.so"
 
+if [ ! -f $GAME_PATH/$GAME_BIN ]; then
+	error "Game binary not found"
+	info "Path was: $GAME_PATH/$GAME_BIN"
+	exit 1
+fi
+
 info "launching the game..."
 cd "$GAME_PATH"
 
+info "Path: $GAME_PATH"
+info "CWD: `pwd`"
+info "SDL: $LIBSDL"
+info "Driver: $SDL_AUDIODRIVER"
+info "Call: LD_PRELOAD="${LD_PRELOAD}:${TMP_DIR}/et-sdl-sound.so" ./$GAME_BIN $*"
+
 export ETSDL_SDL_LIB="$LIBSDL"
 export SDL_AUDIODRIVER="$SDL_AUDIODRIVER"
-LD_PRELOAD="${LD_PRELOAD}:${TMP_DIR}/et-sdl-sound.so" ./$GAME_BIN $*
+#LD_PRELOAD="${LD_PRELOAD}:${TMP_DIR}/et-sdl-sound.so" ./$GAME_BIN $*
 
 rm "$TMP_DIR/et-sdl-sound.so" || error "can't remove $TMP_DIR/et-sdl-sound.so"
 
