@@ -1,10 +1,8 @@
 # Makefile for et-sdl-sound
 
-_GCC_PATH=/usr/x86_64-pc-linux-gnu/gcc-bin/3.4.6/
-
-LD = $(_GCC_PATH)g++
-CPP = $(_GCC_PATH)g++
-CC = $(_GCC_PATH)gcc
+LD = g++
+CPP = g++
+CC = gcc
 
 BUILD = build
 RELEASE = release
@@ -63,7 +61,6 @@ quake3-sdl-sound: $(LIB) $(SCRIPT_IN) embed-lib
 release: $(SCRIPTS)
 	mkdir -p $(RELEASE)/et-sdl-sound
 	cp *.hpp *.cpp *.in *.c README CHANGELOG $(SCRIPTS) $(LIB) $(RELEASE)/et-sdl-sound/
-	sed 's/^_GCC_PATH/\# _GCC_PATH/g' Makefile > $(RELEASE)/et-sdl-sound/Makefile
 	
 	cd $(RELEASE) && tar -czf et-sdl-sound.tar.gz et-sdl-sound
 	
