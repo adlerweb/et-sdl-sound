@@ -58,6 +58,11 @@ void initHooks()
 	const char *version = "UNKNOWN";
 	bool quake3 = false;
 	
+	// open logfile - using stdout leads to segfaults
+    std::ofstream logfile;
+    logfile.open ("/tmp/et-sdl-sound.log");
+    logfile << "---start---" << std::endl;
+	
 	switch (CRC32)
 	{
 	case 0xdc49bc09:
@@ -219,34 +224,34 @@ void initHooks()
 		break;
 	
 	default:
-		std::cout << "You are not running a recognized version of Enemy Territory or RTCW (CRC32 = " << (void *) CRC32  << ")" << std::endl;
+		logfile << "You are not running a recognized version of Enemy Territory or RTCW (CRC32 = " << (void *) CRC32  << ")" << std::endl;
 		return; // we don't need to exit( 1 )
 	}
 	
-	std::cout << "Found " << version << " (CRC32 = " << (void *) CRC32 << ")" << std::endl;
+	logfile << "Found " << version << " (CRC32 = " << (void *) CRC32 << ")" << std::endl;
 	
 	if (backend == OSS) {
-		std::cout << "Using default OSS backend." << std::endl;
+		logfile << "Using default OSS backend." << std::endl;
 		return;
 	}
 #ifdef __ALSA
 	else if (backend == ALSA) {
-		std::cout << "Using ALSA backend." << std::endl;
+		logfile << "Using ALSA backend." << std::endl;
 		etalsa = new EtALSA(dma);
 	}
 #endif
 #ifdef __SDL
 	else if (backend == SDL) {
-		std::cout << "Using SDL backend." << std::endl;
+		logfile << "Using SDL backend." << std::endl;
 		etsdl = new EtSDL(dma, (void *) sdl_audio_callback, quake3);
 	}
 #endif
 	else {
-		std::cout << "Requested backend is not available, using OSS." << std::endl;
+		logfile << "Requested backend is not available, using OSS." << std::endl;
 		return;
 	}
 	
-	std::cout << "et-sdl-sound-" << __ETSDL_VERSION << " (" << __DATE__ << " " << __TIME__ << ", " << __VERSION__ << ") loaded." << std::endl;
+	logfile << "et-sdl-sound-" << __ETSDL_VERSION << " (" << __DATE__ << " " << __TIME__ << ", " << __VERSION__ << ") loaded." << std::endl;
 }
 
 void writeAddr(void *addr, void *dest)
@@ -272,20 +277,14 @@ void unprotectPage(void *addr)
 	mprotect((void*) (((unsigned long) addr) & 0xfffff000), 4096, PROT_READ | PROT_WRITE | PROT_EXEC);
 }
 
-void printMem(void *addr, int size)
+void printMem(void *addr, int size) //May be broken
 {
-	std::cout << addr << ": ";
 	for (int i = 0; i < size; i++)
 		printf("%02x ", ((unsigned char*) addr)[i]);
-	std::cout << std::endl;
 }
 
 qboolean SNDDMA_Init(void)
 {
-#ifdef __DEBUG
-	std::cout << "SNDDMA_Init()" << std::endl;
-#endif
-
 #ifdef __ALSA
 	if (backend == ALSA)
 		return etalsa->init();
@@ -300,10 +299,6 @@ qboolean SNDDMA_Init(void)
 
 int SNDDMA_GetDMAPos(void)
 {
-#ifdef __DEBUG
-	std::cout << "SNDDMA_GetDMAPos()" << std::endl;
-#endif
-
 #ifdef __ALSA
 	if (backend == ALSA)
 		return etalsa->getDMAPos();
@@ -319,10 +314,6 @@ int SNDDMA_GetDMAPos(void)
 
 void SNDDMA_Shutdown(void)
 {
-#ifdef __DEBUG
-	std::cout << "SNDDMA_Shutdown()" << std::endl;
-#endif
-
 #ifdef __ALSA
 	if (backend == ALSA)
 		etalsa->shutdown();
@@ -336,10 +327,6 @@ void SNDDMA_Shutdown(void)
 
 void SNDDMA_BeginPainting(void)
 {
-#ifdef __DEBUG
-	std::cout << "SNDDMA_BeginPainting()" << std::endl;
-#endif
-
 #ifdef __ALSA
 	if (backend == ALSA)
 		etalsa->beginPainting();
@@ -353,10 +340,6 @@ void SNDDMA_BeginPainting(void)
 
 void SNDDMA_Submit(void)
 {
-#ifdef __DEBUG
-	std::cout << "SNDDMA_Submit()" << std::endl;
-#endif
-
 #ifdef __ALSA
 	if (backend == ALSA)
 		etalsa->submit();
@@ -380,7 +363,7 @@ unsigned int calculateProcCRC32()
 	ssize_t len;
 	
 	if ((len = readlink("/proc/self/exe", filename, sizeof(filename) - 1)) < 1) {
-		std::cout << "Can't find actual binary." << std::endl;
+		//logfile << "Can't find actual binary." << std::endl;
 		return 0x00000000;
 	}
 	filename[len] = '\0';
@@ -390,7 +373,7 @@ unsigned int calculateProcCRC32()
 	exe.open(filename);
 	
 	if (!exe.is_open() | !exe.good()) {
-		std::cout << "Can't open " << filename << std::endl;
+		//logfile << "Can't open " << filename << std::endl;
 		return 0x00000000;
 	}
 	
@@ -403,7 +386,7 @@ unsigned int calculateProcCRC32()
 	exe.read((char*) file, fsize);
 	exe.close();
 	
-	std::cout << "Read " << filename << " (" << fsize << " bytes)" << std::endl;
+	//logfile << "Read " << filename << " (" << fsize << " bytes)" << std::endl;
 	
 	// generate crc_table
 	unsigned int crc_table[256];
