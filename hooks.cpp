@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <sys/mman.h>
 #include <cstdlib>
 #include <limits.h>
+#include <unistd.h>
 
 #ifdef __SDL
 #include <SDL/SDL.h>
