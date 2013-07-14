@@ -103,7 +103,7 @@ fi
 [ "$GAME_PATH" = "" ] && testgamepath "/usr/local/games/$GAME_DIR"
 [ "$GAME_PATH" = "" ] && testgamepath "/opt/$GAME_DIR"
 [ "$GAME_PATH" = "" ] && testgamepath "/usr/games/$GAME_DIR"
-#[ "$GAME_PATH" = "" ] && testgamepath "/usr/share/"
+[ "$GAME_PATH" = "" ] && testgamepath "/usr/share/"
 [ "$GAME_PATH" = "" ] && testgamepath "~/$GAME_DIR"
 if [ "$GAME_PATH" = "" ]; then
 	LOCATE_GAME=`locate "$GAME_BIN" 2> /dev/null`
